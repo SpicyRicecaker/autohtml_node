@@ -46,12 +46,17 @@
         'utf-8'
       )
     );
-    const filepath = path.join(
+    const folderpath = path.join(
       form.outputDir.value,
       `disc-${form.disc.value}`,
-      `disc-${form.disc.value}-${form.topic.value}`,
+      `disc-${form.disc.value}-${form.topic.value}`
+    );
+    const filepath = path.join(
+      folderpath,
       `disc-${form.disc.value}-${form.topic.value}.html`
     );
+    // Create directory if it doesn't exist
+    fs.mkdir(folderpath, { recursive: true });
     // Write the file
     await fs.writeFile(filepath, template(form));
     // Update local storage
