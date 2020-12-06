@@ -3,8 +3,8 @@
   "workspaces": [
     "pages"
   ],
-  "name": "svelte-app",
-  "productName": "svelte-app",
+  "name": "autohtml",
+  "productName": "autohtml",
   "version": "0.0.0",
   "description": "Template for electron, typescript, and svelte",
   "main": "dist/index.js",
@@ -18,8 +18,8 @@
   },
   "keywords": [],
   "author": {
-    "name": "Your Name",
-    "email": "Your_Email@gmail.com"
+    "name": "SpicyRicecaker",
+    "email": "awesomenessisgolden@gmail.com"
   },
   "config": {
     "forge": {
@@ -31,7 +31,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "svelte-app",
+            "name": "autohtml",
             "setupIcon": "pages/public/assets/icon.ico",
             "iconUrl": "https://raw.githubusercontent.com/SpicyRicecaker/svelte-electron-typescript-template/master/pages/public/assets/icon.ico",
             "skipUpdateIcon": true
