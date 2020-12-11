@@ -5,7 +5,7 @@
   ],
   "name": "autohtml",
   "productName": "autohtml",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Template for electron, typescript, and svelte",
   "main": "dist/index.js",
   "scripts": {
@@ -24,8 +24,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "pages/public/assets/icon.ico",
-        "extraResource": "pages/public/assets/icon.ico"
+        "icon": "pages/public/assets/icon.ico"
       },
       "makers": [
         {

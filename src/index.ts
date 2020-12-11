@@ -5,7 +5,7 @@ import {
   Tray,
   Menu,
   // dialog,
-  // ipcMain,
+  ipcMain,
 } from 'electron';
 import * as path from 'path';
 
@@ -25,7 +25,14 @@ const createWindow = (): void => {
     width: width * 0.85,
     height: height * 0.75,
     icon: app.isPackaged
-      ? path.join(process.resourcesPath, 'icon.ico')
+      ? path.join(
+          process.resourcesPath,
+          'app',
+          'pages',
+          'public',
+          'assets',
+          'icon.ico'
+        )
       : path.join(path.resolve(), 'pages', 'public', 'assets', 'icon.ico'),
     webPreferences: {
       nodeIntegration: true,
@@ -54,7 +61,14 @@ const createWindow = (): void => {
   // Code inspired by https://stackoverflow.com/questions/37828758/electron-js-how-to-minimize-close-window-to-system-tray-and-restore-window-back
   const createTray = (): void => {
     const imgPath = app.isPackaged
-      ? path.join(process.resourcesPath, 'icon.ico')
+      ? path.join(
+          process.resourcesPath,
+          'app',
+          'pages',
+          'public',
+          'assets',
+          'icon.ico'
+        )
       : path.join(path.resolve(), 'pages', 'public', 'assets', 'icon.ico');
     tray = new Tray(imgPath);
     const contextMenu = Menu.buildFromTemplate([
@@ -135,6 +149,7 @@ app.on('activate', () => {
 //   //do something with args
 //   dialog.showSaveDialog(options)
 // );
+ipcMain.handle('isPackaged', async () => app.isPackaged);
 
 // ipcMain.handle('showOpenDialog', async (event, options) =>
 //   //do something with args

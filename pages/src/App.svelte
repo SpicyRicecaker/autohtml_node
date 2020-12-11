@@ -4,6 +4,7 @@
   import { promises as fs } from 'fs';
   import path from 'path';
   import { onMount } from 'svelte';
+  import { ipcRenderer } from 'electron';
   interface form {
     disc: { value: string; modified: boolean };
     topic: { value: string; modified: boolean };
@@ -40,12 +41,11 @@
   const getColor = (bool: boolean): string => (bool ? '#9DBF9E' : '#987284');
 
   const make = async () => {
-    const template = Handlebars.compile(
-      await fs.readFile(
-        path.join(path.resolve(), 'pages', 'src', 'index.hbs'),
-        'utf-8'
-      )
-    );
+    const hbs = (await ipcRenderer.invoke('isPackaged'))
+      ? path.join(process.resourcesPath, 'app', 'pages', 'src', 'index.hbs')
+      : path.join(path.resolve(), 'pages', 'src', 'index.hbs');
+
+    const template = Handlebars.compile(await fs.readFile(hbs, 'utf-8'));
     const folderpath = path.join(
       form.outputDir.value,
       `disc-${form.disc.value}`,
@@ -61,9 +61,9 @@
     await fs.writeFile(filepath, template(form));
     // Update local storage
     Object.entries(form).forEach(([key, value]) => {
-      console.log(key, value.value);
       local.setItem(key, value.value);
     });
+    console.log(`Successfully added ${filepath}`);
   };
 </script>
 
