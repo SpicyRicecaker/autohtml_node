@@ -1,18 +1,14 @@
 {
-  "private": "true",
-  "workspaces": [
-    "pages"
-  ],
   "name": "autohtml",
   "productName": "autohtml",
   "version": "0.0.1",
   "description": "Template for electron, typescript, and svelte",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "concurrently \"yarn:start\" \"lerna run start\"",
+    "dev": "pnpm start & pnpm -r start",
     "start": "tsc && electron-forge start",
-    "package": "lerna run build && tsc && electron-forge package",
-    "make": "lerna run build && tsc && electron-forge make",
+    "package": "pnpm -r build && tsc && electron-forge package",
+    "make": "pnpm -r build && tsc && electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts ."
   },
@@ -59,14 +55,14 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "@typescript-eslint/eslint-plugin": "^2.18.0",
-    "@typescript-eslint/parser": "^2.18.0",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
     "concurrently": "^5.3.0",
-    "electron": "11.0.3",
-    "eslint": "^7.6.0",
-    "eslint-plugin-import": "^2.20.0",
+    "electron": "11.1.1",
+    "eslint": "^7.17.0",
+    "eslint-plugin-import": "^2.22.1",
     "lerna": "^3.22.1",
-    "typescript": "^4.0.2"
+    "typescript": "^4.1.3"
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0"
