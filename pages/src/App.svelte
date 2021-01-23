@@ -23,6 +23,15 @@
     outputDir: { value: '', modified: false },
   };
 
+  const message = [
+    'This is <b>discussion</b>',
+    ", and we're talking <b>about</b>",
+    '. The link to <b>pdf</b> is',
+    ', and link to <b>desmos</b> is',
+    "We're <i>outputting</i> to ",
+    'and <i>uploading</i> it to',
+  ];
+
   onMount(() => {
     (Object.keys(form) as (keyof form)[]).forEach((key) => {
       const t = local.getItem(key);
@@ -40,32 +49,103 @@
 
   const getColor = (bool: boolean): string => (bool ? '#9DBF9E' : '#987284');
 
+  // Writes file to corresponding locations
   const make = async () => {
+    // Load the handlebars file from wherever necessary
     const hbs = (await ipcRenderer.invoke('isPackaged'))
       ? path.join(process.resourcesPath, 'app', 'pages', 'src', 'index.hbs')
-      : path.join(path.resolve(), 'pages', 'src', 'index.hbs');
+      : path.join(path.resolve(), 'pages', 'src', 'html.hbs');
+    // Also load the latex file from wherever necessary
+    const tex = (await ipcRenderer.invoke('isPackaged'))
+      ? path.join(process.resourcesPath, 'app', 'pages', 'src', 'tex.tex')
+      : path.join(path.resolve(), 'pages', 'src', 'tex.tex');
 
-    const template = Handlebars.compile(await fs.readFile(hbs, 'utf-8'));
+    // Use handlebars to compile the html template for discussion
+    const html_template = Handlebars.compile(await fs.readFile(hbs, 'utf-8'));
+    // Decide on the folderpath based on the topics
     const folderpath = path.join(
       form.outputDir.value,
       `disc-${form.disc.value}`,
       `disc-${form.disc.value}-${form.topic.value}`
     );
-    const filepath = path.join(
+    // Decide on the filepath based on the topics
+    const html_filepath = path.join(
       folderpath,
       `disc-${form.disc.value}-${form.topic.value}.html`
     );
+
+    // Just load the entire latex file I guess
+    let tex_template = await fs.readFile(tex, 'utf-8');
+    // Update tex date and topic
+    tex_template
+      .replaceAll(/\title{.*}/g, `\\title{${form.topic.value}}`)
+      .replaceAll(/\date{.*}/g, `\\date{${getMLADate()}}`);
+
+    // Decide on latex filepath
+    const tex_filepath = path.join(
+      folderpath,
+      `disc-${form.disc.value}-${form.topic.value}.tex`
+    );
+
     // Create directory if it doesn't exist
     fs.mkdir(folderpath, { recursive: true });
-    // Write the file
-    await fs.writeFile(filepath, template(form));
+    // Write the file(s)
+    await fs.writeFile(html_filepath, html_template(form));
+    await fs.writeFile(tex_filepath, tex_template);
     // Update local storage
     Object.entries(form).forEach(([key, value]) => {
       local.setItem(key, value.value);
     });
-    console.log(`Successfully added ${filepath}`);
+    console.log(`Successfully added ${tex_filepath} and ${html_filepath}`);
+  };
+
+  const getMLADate = (): string => {
+    const date = new Date();
+    return `${date.getDate()} ${date.toLocaleString('default', {
+      month: 'long',
+    })} ${date.getFullYear()}`;
   };
 </script>
+
+<main>
+  <div class="form">
+    <div class="main">
+      {#each formEntries.slice(0, formEntries.length - 2) as key, i}
+        <span>
+          <span>
+            {@html message[i]}
+          </span>
+          <input
+            type="text"
+            placeholder={key}
+            bind:value={form[key].value}
+            on:input={() => (form[key].modified = isLocalChange(key))}
+          />
+          <span style="color: {getColor(form[key].modified)}">
+            {#if form[key].modified}😍{:else}🤔{/if}
+            {local.getItem(key)}
+          </span>
+        </span>
+      {/each}
+    </div>
+    <div class="off">
+      {#each formEntries.slice(formEntries.length - 2, formEntries.length) as key, i}
+        <span>
+          <span>
+            {@html message[i + formEntries.length - 2]}
+          </span>
+          <input
+            type="text"
+            placeholder={key}
+            bind:value={form[key].value}
+            on:input={() => (form[key].modified = isLocalChange(key))}
+          />
+        </span>
+      {/each}
+    </div>
+  </div>
+  <div class="action"><button on:click={make}>MAKE</button></div>
+</main>
 
 <style lang="scss">
   :global(body) {
@@ -81,7 +161,7 @@
     display: grid;
     grid-template:
       'form action' /
-      minmax(0, 1fr) minmax(0, 1fr);
+      minmax(0, 2fr) minmax(0, 1fr);
     // Make it more native, turn it on later if needed
     user-select: none;
   }
@@ -90,11 +170,24 @@
     grid-area: form;
     padding: 1rem;
     display: grid;
-    & * {
-      min-width: 0;
-      word-break: break-all;
-    }
+    grid-template:
+      'main' minmax(0, 2fr)
+      'off' minmax(0, 1fr);
   }
+
+  .main {
+    grid-area: main;
+  }
+
+  .off {
+    grid-area: off;
+    font-size: 0.2rem;
+  }
+  // .repoURL,
+  // .outputDir {
+  //   font-size: 0.2rem;
+  //   // grid-area: off
+  // }
 
   .action {
     grid-area: action;
@@ -104,21 +197,3 @@
     min-width: 0;
   }
 </style>
-
-<main>
-  <div class="form">
-    {#each formEntries as key}
-      <input
-        type="text"
-        placeholder={key}
-        bind:value={form[key].value}
-        on:input={() => (form[key].modified = isLocalChange(key))} />
-      <div style="color: {getColor(form[key].modified)}">
-        {#if form[key].modified}😍{:else}🤔{/if}
-        {local.getItem(key)}
-      </div>
-    {/each}
-    <!-- <button>Choose path</button> -->
-  </div>
-  <div class="action"><button on:click={make}>MAKE</button></div>
-</main>

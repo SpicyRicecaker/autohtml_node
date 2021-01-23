@@ -1,0 +1,8 @@
+{
+  "disc": { "value": "12", "modified": false },
+  "topic": { "value": "bob-res", "modified": false },
+  "pdfURL": { "value": "", "modified": false },
+  "desmosURL": { "value": "", "modified": false },
+  "repoURL": { "value": "https://github.com/SpicyRicecaker/stu-dying-2020/blob/master/calc-2020/", "modified": false },
+  "outputDir": { "value": "/home/spicy/git/stu-dying-2020/calc-2020", "modified": false }
+}

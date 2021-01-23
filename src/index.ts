@@ -91,7 +91,7 @@ const createWindow = (): void => {
     tray.setToolTip('Svelte-App');
     tray.setContextMenu(contextMenu);
   };
-  createTray();
+  // createTray();
 };
 
 const gotTheLock = app.requestSingleInstanceLock();
