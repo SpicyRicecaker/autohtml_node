@@ -28,8 +28,8 @@
     ", and we're talking <b>about</b>",
     '. The link to <b>pdf</b> is',
     ', and link to <b>desmos</b> is',
-    "We're <i>outputting</i> to ",
-    'and <i>uploading</i> it to',
+    'We\'re <i>uploading</i> it to',
+    "and it <i>outputting</i> to ",
   ];
 
   onMount(() => {
@@ -77,9 +77,9 @@
     // Just load the entire latex file I guess
     let tex_template = await fs.readFile(tex, 'utf-8');
     // Update tex date and topic
-    tex_template
-      .replaceAll(/\title{.*}/g, `\\title{${form.topic.value}}`)
-      .replaceAll(/\date{.*}/g, `\\date{${getMLADate()}}`);
+    tex_template = tex_template
+      .replaceAll(/\\title{.*}/g, `\\title{${form.topic.value}}`)
+      .replaceAll(/\\date{.*}/g, `\\date{${getMLADate()}}`);
 
     // Decide on latex filepath
     const tex_filepath = path.join(
@@ -88,7 +88,7 @@
     );
 
     // Create directory if it doesn't exist
-    fs.mkdir(folderpath, { recursive: true });
+    await fs.mkdir(folderpath, { recursive: true });
     // Write the file(s)
     await fs.writeFile(html_filepath, html_template(form));
     await fs.writeFile(tex_filepath, tex_template);
