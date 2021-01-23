@@ -28,8 +28,8 @@
     ", and we're talking <b>about</b>",
     '. The link to <b>pdf</b> is',
     ', and link to <b>desmos</b> is',
-    'We\'re <i>uploading</i> it to',
-    "and it <i>outputting</i> to ",
+    "We're <i>uploading</i> it to",
+    'and it <i>outputting</i> to ',
   ];
 
   onMount(() => {
@@ -88,15 +88,28 @@
     );
 
     // Create directory if it doesn't exist
-    await fs.mkdir(folderpath, { recursive: true });
-    // Write the file(s)
-    await fs.writeFile(html_filepath, html_template(form));
-    await fs.writeFile(tex_filepath, tex_template);
+    try {
+      await fs.mkdir(folderpath, { recursive: true });
+    } catch (e) {
+      console.log(e);
+    }
+    const res = await Promise.all([
+      // Write to html unconditionally overwrite
+      writeFile(html_filepath, html_template(form)),
+      // For the tex file, check if it exists first
+      writeIfNoFile(tex_filepath, tex_template),
+    ]);
+
     // Update local storage
     Object.entries(form).forEach(([key, value]) => {
       local.setItem(key, value.value);
     });
-    console.log(`Successfully added ${tex_filepath} and ${html_filepath}`);
+    // Print result
+    let msg = '';
+    res.forEach((value) => {
+      msg = `${msg} ${value} \n\n`;
+    });
+    console.log(msg);
   };
 
   const getMLADate = (): string => {
@@ -104,6 +117,43 @@
     return `${date.getDate()} ${date.toLocaleString('default', {
       month: 'long',
     })} ${date.getFullYear()}`;
+  };
+
+  const writeFile = async (
+    filePath: string,
+    content: string
+  ): Promise<string> => {
+    const basename = path.basename(filePath);
+    try {
+      await fs.writeFile(filePath, content);
+      return `Wrote ${basename}`;
+    } catch (e) {
+      return `Error ${e.code} while writing ${basename}`;
+    }
+  };
+
+  const writeIfNoFile = async (
+    filePath: string,
+    content: string
+  ): Promise<string> => {
+    const basename = path.basename(filePath);
+    try {
+      await fs.stat(filePath);
+      return `${basename} already exists!`;
+    } catch (e) {
+      switch (e.code) {
+        case 'ENOENT': {
+          // Only write latex file if it doesn't exist
+          await fs.writeFile(filePath, content);
+          return `Wrote ${basename}`;
+          // break;
+        }
+        default: {
+          return `Error ${e.code} while writing ${basename}.)`;
+          break;
+        }
+      }
+    }
   };
 </script>
 

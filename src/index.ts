@@ -24,6 +24,8 @@ const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     width: width * 0.85,
     height: height * 0.75,
+    // Keep in mind for icon electron won't actually launch if you use `.ico` on linux
+    // `.png` for maximum compatability I guess
     icon: app.isPackaged
       ? path.join(
           process.resourcesPath,
@@ -31,9 +33,9 @@ const createWindow = (): void => {
           'pages',
           'public',
           'assets',
-          'icon.ico'
+          'icon.png'
         )
-      : path.join(path.resolve(), 'pages', 'public', 'assets', 'icon.ico'),
+      : path.join(path.resolve(), 'pages', 'public', 'assets', 'icon.png'),
     webPreferences: {
       nodeIntegration: true,
       zoomFactor: 1.5,
